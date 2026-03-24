@@ -1,16 +1,31 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from dotenv import load_dotenv
+from langchain_core.messages import HumanMessage
+
+# ✅ LOAD ENV FIRST
+load_dotenv("./.env")
+
+# ✅ THEN import agent
+from src.agent.agent import mail_agent, thread_config
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def call_agent():
+    while True:
+        user_input = input("User --> ")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+        response = mail_agent.invoke(
+            {"messages": [HumanMessage(content=user_input)]},
+            config=thread_config# ← LangChain object
+        )
+
+        msg=response["messages"][-1]
+        tool=response["messages"][-2]
+        if tool.type =="tool":
+            print(f"tool-->{tool.name}")
+        print(f"AI--> {msg.content}")
+
+
+
+if __name__ == "__main__":
+    call_agent()
